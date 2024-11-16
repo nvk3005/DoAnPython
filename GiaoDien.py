@@ -1,236 +1,341 @@
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
-import pandas as pd
-import matplotlib.pyplot as plt
-import threading
 
-# Khởi tạo cửa sổ chính
-root = tk.Tk()
-root.title("Quản Lý Dữ Liệu Video Game Sales")
-root.geometry("1400x700")
-root.configure(bg="#f0f0f0")
+class VideoGameSalesApp:
+    """
+    Ứng dụng quản lý dữ liệu Video Game Sales với các tính năng:
+    - Hiển thị dữ liệu với phân trang, tìm kiếm, và sắp xếp.
+    - Chức năng CRUD cơ bản (Thêm, Xóa, Cập nhật).
+    - Lưu dữ liệu ra file CSV.
+    """
 
-# Khung chính để hiển thị dữ liệu
-main_frame = tk.Frame(root, bg="#f0f0f0")
-main_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+    def __init__(self, root):
+        """
+        Khởi tạo ứng dụng và giao diện.
 
-# Tạo Treeview để hiển thị dữ liệu
-tree = ttk.Treeview(main_frame)
-tree.pack(fill=tk.BOTH, expand=True)
+        Parameters:
+            root (Tk): Cửa sổ Tkinter chính.
+        """
+        self.root = root
+        self.root.title("Quản Lý Dữ Liệu Video Game Sales")
+        self.root.geometry("1400x700")
+        self.root.configure(bg="#f0f0f0")
 
-# Thêm thanh cuộn dọc và ngang cho Treeview
-tree_scroll_y = ttk.Scrollbar(main_frame, orient="vertical", command=tree.yview)
-tree_scroll_y.pack(side="right", fill="y")
-tree_scroll_x = ttk.Scrollbar(main_frame, orient="horizontal", command=tree.xview)
-tree_scroll_x.pack(side="bottom", fill="x")
+        # Thiết lập giao diện người dùng
+        self.create_main_frame()
+        self.create_menu()
+        
+    def create_main_frame(self):
+        """Tạo khung chính và Treeview để hiển thị dữ liệu."""
+        self.main_frame = tk.Frame(self.root, bg="#f0f0f0")
+        self.main_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
 
-tree.configure(yscrollcommand=tree_scroll_y.set, xscrollcommand=tree_scroll_x.set)
+        self.tree = ttk.Treeview(self.main_frame, selectmode="browse")
+        self.tree.pack(fill=tk.BOTH, expand=True)
 
-# Biến lưu trữ DataFrame
-df = pd.DataFrame()
+        # Thêm thanh cuộn dọc và ngang cho Treeview
+        tree_scroll_y = ttk.Scrollbar(self.main_frame, orient="vertical", command=self.tree.yview)
+        tree_scroll_y.pack(side="right", fill="y")
+        tree_scroll_x = ttk.Scrollbar(self.main_frame, orient="horizontal", command=self.tree.xview)
+        tree_scroll_x.pack(side="bottom", fill="x")
+        self.tree.configure(yscrollcommand=tree_scroll_y.set, xscrollcommand=tree_scroll_x.set)
 
-# Khung nhập liệu cho các thao tác CRUD
-entry_frame = tk.Frame(root, bg="#f0f0f0")
-entry_frame.pack(fill=tk.X, padx=10, pady=10)
+        # Thêm sự kiện chọn dòng
+        self.tree.bind("<<TreeviewSelect>>", self.on_row_select)
 
-# Hàm tải dữ liệu từ tệp CSV vào Treeview
-def load_data_to_treeview(show_message=False):
-    global df
-    try:
-        # Xóa dữ liệu cũ trong Treeview
-        for item in tree.get_children():
-            tree.delete(item)
+    def load_data_to_treeview(self, show_message=False):
+        """Tải dữ liệu từ DataFrame lên Treeview."""
+        pass
 
-        # Đặt tên cột và hiển thị dữ liệu
-        tree["column"] = list(df.columns)
-        tree["show"] = "headings"
+    def on_row_select(self, event):
+        """Khi người dùng chọn một dòng trong Treeview, dữ liệu của dòng đó sẽ được điền vào các trường nhập liệu."""
+        pass
 
-        for col in tree["column"]:
-            tree.heading(col, text=col)
-            tree.column(col, width=120, anchor="center")
+    def open_file(self):
+        """Mở file CSV và tải dữ liệu vào DataFrame. Hiển thị dữ liệu trên Treeview nếu thành công."""
+        pass
 
-        # Chèn dữ liệu từ DataFrame vào Treeview
-        for index, row in df.iterrows():
-            tree.insert("", "end", iid=index, values=list(row))
+    def create_entry_fields(self):
+        """Tạo các trường nhập liệu và các nút chức năng CRUD."""
+        if hasattr(self, 'entry_frame'):
+            self.entry_frame.destroy()
 
-        create_entry_fields()
+        self.entry_frame = tk.Frame(self.root, bg="#f0f0f0")
+        self.entry_frame.pack(fill=tk.BOTH, padx=10, pady=10)
+        
+        # Thêm các nút chức năng mà không cần xử lý dữ liệu
+        btn_add = tk.Button(self.entry_frame, text="Add", command=self.create_entry, bg="#4CAF50", fg="white")
+        btn_add.grid(row=2, column=0, padx=5, pady=5)
 
-        if show_message:
-            messagebox.showinfo("Thành công", "Dữ liệu đã được tải lên thành công!")
+        btn_update = tk.Button(self.entry_frame, text="Update", command=self.update_entry, bg="#FFA500", fg="white")
+        btn_update.grid(row=2, column=1, padx=5, pady=5)
 
-    except Exception as e:
-        messagebox.showerror("Lỗi", f"Không thể tải dữ liệu: {e}")
+        btn_delete = tk.Button(self.entry_frame, text="Delete", command=self.delete_entry, bg="#f44336", fg="white")
+        btn_delete.grid(row=2, column=2, padx=5, pady=5)
 
-# Hàm mở file CSV
-def open_file():
-    global file_path, df
-    file_path = filedialog.askopenfilename(filetypes=[("CSV Files", "*.csv")])
-    if file_path:
-        try:
-            df = pd.read_csv(file_path)
-            if df.empty:
-                messagebox.showwarning("Cảnh báo", "File CSV không có dữ liệu.")
-                return
-            load_data_to_treeview(show_message=True)
-        except Exception as e:
-            messagebox.showerror("Lỗi", f"Không thể mở file CSV: {e}")
-    else:
-        messagebox.showinfo("Thông báo", "Chưa chọn file CSV nào.")
+        btn_save = tk.Button(self.entry_frame, text="Save", command=self.save_to_csv, bg="#00796B", fg="white")
+        btn_save.grid(row=2, column=3, padx=5, pady=5)
 
-# Hàm tạo các trường nhập liệu và các nút chức năng
-def create_entry_fields():
-    for widget in entry_frame.winfo_children():
-        widget.destroy()
+    def create_entry(self):
+        """Thêm một dòng mới vào DataFrame dựa trên các trường nhập liệu."""
+        pass
 
-    global entries
-    entries = {}
+    def update_entry(self):
+        """Cập nhật dòng dữ liệu đã chọn dựa trên giá trị trong các trường nhập liệu."""
+        pass
 
-    if not df.empty:
-        columns = df.columns
-        num_columns = len(columns)
-        for i, col in enumerate(columns):
-            label = tk.Label(entry_frame, text=col, bg="#f0f0f0", font=("Arial", 10, "bold"))
-            label.grid(row=0, column=i, padx=5, pady=5, sticky="w")
-            entry = tk.Entry(entry_frame, width=15)  # Điều chỉnh độ rộng của ô nhập liệu
-            entry.grid(row=1, column=i, padx=5, pady=5, sticky="w")
-            entries[col] = entry
+    def delete_entry(self):
+        """Xóa dòng dữ liệu đã chọn trong DataFrame và cập nhật lại Treeview."""
+        pass
 
-    create_btn = tk.Button(entry_frame, text="Add", bg="#4CAF50", fg="white", font=("Arial", 10, "bold"), command=create_entry)
-    create_btn.grid(row=2, column=0, padx=5, pady=5)
+    def save_to_csv(self):
+        """Lưu DataFrame hiện tại ra tệp CSV theo đường dẫn người dùng chọn."""
+        pass
 
-    update_btn = tk.Button(entry_frame, text="Update", bg="#FFA500", fg="white", font=("Arial", 10, "bold"), command=update_entry)
-    update_btn.grid(row=2, column=1, padx=5, pady=5)
+    def sort_data(self, column_name):
+        """Sắp xếp dữ liệu theo cột được chọn và hiển thị lại trên Treeview."""
+        pass
 
-    delete_btn = tk.Button(entry_frame, text="Delete", bg="#f44336", fg="white", font=("Arial", 10, "bold"), command=delete_entry)
-    delete_btn.grid(row=2, column=2, padx=5, pady=5)
+    def create_menu(self):
+        """Tạo menu với các tùy chọn File (Mở, Lưu, Thoát)."""
+        menu = tk.Menu(self.root)
+        self.root.config(menu=menu)
 
-    plot_btn = tk.Button(entry_frame, text="Graphic", bg="#2196F3", fg="white", font=("Arial", 10, "bold"), command=choose_graphic)
-    plot_btn.grid(row=2, column=3, padx=5, pady=5)
+        file_menu = tk.Menu(menu, tearoff=0)
+        menu.add_cascade(label="File", menu=file_menu)
+        file_menu.add_command(label="Open", command=self.open_file)
+        file_menu.add_command(label="Save", command=self.save_to_csv)
+        file_menu.add_separator()
+        file_menu.add_command(label="Exit", command=self.root.quit)
 
-    sort_label = tk.Label(entry_frame, text="Sắp xếp theo:", bg="#f0f0f0", font=("Arial", 10, "bold"))
-    sort_label.grid(row=2, column=4, padx=5, pady=5)
+if __name__ == "__main__":
+    root = tk.Tk()
+    app = VideoGameSalesApp(root)
+    root.mainloop()
 
-    sort_combobox = ttk.Combobox(entry_frame, values=list(df.columns))
-    sort_combobox.grid(row=2, column=5, padx=5, pady=5)
+# import tkinter as tk
+# from tkinter import ttk, filedialog, messagebox
+# import pandas as pd
+# import matplotlib.pyplot as plt
 
-    sort_btn = tk.Button(entry_frame, text="Sort", bg="#9C27B0", fg="white", font=("Arial", 10, "bold"),
-                         command=lambda: sort_data(sort_combobox.get()))
-    sort_btn.grid(row=2, column=6, padx=5, pady=5)
+# class VideoGameSalesApp:
+#     """
+#     Ứng dụng quản lý dữ liệu Video Game Sales với các tính năng:
+#     - Hiển thị dữ liệu với phân trang, tìm kiếm, và sắp xếp.
+#     - Chức năng CRUD cơ bản (Thêm, Xóa, Cập nhật).
+#     - Vẽ biểu đồ cho các trường doanh số.
+#     - Lưu dữ liệu ra file CSV.
+#     """
 
-# Các hàm CRUD cơ bản để thực hiện chức năng
-def create_entry():
-    if df.empty:
-        messagebox.showwarning("Cảnh báo", "Bạn cần tải dữ liệu CSV trước khi thêm.")
-        return
+#     def __init__(self, root):
+#         """
+#         Khởi tạo ứng dụng và giao diện.
 
-    new_data = [entry.get() for entry in entries.values()]
-    if len(new_data) == len(df.columns):
-        try:
-            new_row = pd.Series(new_data, index=df.columns)
-            df = pd.concat([df, pd.DataFrame([new_row])], ignore_index=True)
-            load_data_to_treeview()
-            messagebox.showinfo("Thành công", "Dữ liệu đã được thêm thành công!")
-        except Exception as e:
-            messagebox.showerror("Lỗi", f"Không thể thêm dữ liệu: {e}")
-    else:
-        messagebox.showwarning("Cảnh báo", "Hãy nhập đủ thông tin vào các trường dữ liệu.")
+#         Parameters:
+#             root (Tk): Cửa sổ Tkinter chính.
+#         """
+#         self.root = root
+#         self.root.title("Quản Lý Dữ Liệu Video Game Sales")
+#         self.root.geometry("1400x700")
+#         self.root.configure(bg="#f0f0f0")
 
-def update_entry():
-    try:
-        selected_item = tree.selection()[0]
-        values = [entry.get() for entry in entries.values()]
-        if len(values) == len(df.columns):
-            for i, col in enumerate(df.columns):
-                df.at[int(selected_item), col] = values[i]
-            load_data_to_treeview()
-            messagebox.showinfo("Thành công", "Dữ liệu đã được cập nhật thành công!")
-        else:
-            messagebox.showwarning("Cảnh báo", "Hãy nhập đủ thông tin vào các trường dữ liệu.")
-    except IndexError:
-        messagebox.showwarning("Cảnh báo", "Chưa chọn dòng để cập nhật.")
-    except Exception as e:
-        messagebox.showerror("Lỗi", f"Không thể cập nhật dữ liệu: {e}")
+#         self.df = pd.DataFrame()  # Khởi tạo DataFrame rỗng
+#         self.sort_ascending = True  # Đặt thứ tự sắp xếp ban đầu
 
-def delete_entry():
-    try:
-        selected_item = tree.selection()[0]
-        df.drop(int(selected_item), inplace=True)
-        df.reset_index(drop=True, inplace=True)
-        load_data_to_treeview()
-        messagebox.showinfo("Thành công", "Dữ liệu đã được xóa thành công!")
-    except IndexError:
-        messagebox.showwarning("Cảnh báo", "Chưa chọn dòng để xóa.")
-    except Exception as e:
-        messagebox.showerror("Lỗi", f"Không thể xóa dữ liệu: {e}")
+#         # Thiết lập giao diện người dùng
+#         self.create_main_frame()
+#         self.create_menu()
+        
+#     def create_main_frame(self):
+#         """Tạo khung chính và Treeview để hiển thị dữ liệu."""
+#         self.main_frame = tk.Frame(self.root, bg="#f0f0f0")
+#         self.main_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
 
-def choose_graphic():
-    try:
-        columns = [col for col in df.columns if df[col].dtype in ['int64', 'float64']]
-        if not columns:
-            messagebox.showwarning("Cảnh báo", "Không có cột nào có dữ liệu số để vẽ biểu đồ.")
-            return
-        select_window = tk.Toplevel(root)
-        select_window.title("Chọn Cột Vẽ Biểu Đồ")
-        select_window.geometry("400x300")
-        select_window.configure(bg="#f0f0f0")
+#         self.tree = ttk.Treeview(self.main_frame, selectmode="browse")
+#         self.tree.pack(fill=tk.BOTH, expand=True)
 
-        listbox = tk.Listbox(select_window, selectmode="multiple")
-        listbox.pack(expand=True, fill=tk.BOTH, padx=20, pady=20)
+#         # Thêm thanh cuộn dọc và ngang cho Treeview
+#         tree_scroll_y = ttk.Scrollbar(self.main_frame, orient="vertical", command=self.tree.yview)
+#         tree_scroll_y.pack(side="right", fill="y")
+#         tree_scroll_x = ttk.Scrollbar(self.main_frame, orient="horizontal", command=self.tree.xview)
+#         tree_scroll_x.pack(side="bottom", fill="x")
+#         self.tree.configure(yscrollcommand=tree_scroll_y.set, xscrollcommand=tree_scroll_x.set)
 
-        for col in columns:
-            listbox.insert(tk.END, col)
+#         # Thêm sự kiện chọn dòng
+#         self.tree.bind("<<TreeviewSelect>>", self.on_row_select)
 
-        def plot_selected():
-            selected_indices = listbox.curselection()
-            if not selected_indices:
-                messagebox.showwarning("Cảnh báo", "Vui lòng chọn ít nhất một cột để vẽ biểu đồ.")
-                return
+#     def load_data_to_treeview(self, show_message=False):
+#         """
+#         Tải dữ liệu từ DataFrame lên Treeview.
 
-            selected_columns = [columns[i] for i in selected_indices]
+#         Parameters:
+#             show_message (bool): Hiển thị thông báo thành công nếu có. Mặc định là False.
+#         """
+#         try:
+#             # Xóa dữ liệu cũ trong Treeview
+#             self.tree.delete(*self.tree.get_children())
 
-            # Tạo luồng mới để vẽ biểu đồ
-            def plot_thread():
-                plt.ion()  # Bật chế độ interactive mode
-                try:
-                    df[selected_columns].plot(kind='bar', figsize=(10, 6))
-                    plt.title('Biểu Đồ So Sánh')
-                    plt.xlabel('Index')
-                    plt.ylabel('Giá Trị')
-                    plt.xticks(rotation=90)
-                    plt.tight_layout()
-                    plt.show()
-                except Exception as e:
-                    messagebox.showerror("Lỗi", f"Không thể vẽ biểu đồ: {e}")
+#             # Đặt tên cột và hiển thị dữ liệu
+#             self.tree["column"] = list(self.df.columns)
+#             self.tree["show"] = "headings"
 
-            thread = threading.Thread(target=plot_thread)
-            thread.start()
+#             for col in self.tree["column"]:
+#                 self.tree.heading(col, text=col, command=lambda _col=col: self.sort_data(_col))
+#                 if col == "Name":
+#                     self.tree.column(col, width=200, anchor="w")  # Đặt độ rộng cố định cho cột Name
+#                 else:
+#                     max_width = min(max(self.df[col].astype(str).map(len).max() * 8, 80), 120)  # Điều chỉnh độ rộng tối đa cho các cột khác
+#                     self.tree.column(col, width=max_width, anchor="center")
 
-        plot_btn = tk.Button(select_window, text="Vẽ Biểu Đồ", command=plot_selected, bg="#2196F3", fg="white", font=("Arial", 12, "bold"))
-        plot_btn.pack(pady=10)
+#             # Chèn dữ liệu từ DataFrame vào Treeview
+#             for index, row in self.df.iterrows():
+#                 self.tree.insert("", "end", iid=index, values=list(row))
 
-    except Exception as e:
-        messagebox.showerror("Lỗi", f"Không thể vẽ biểu đồ: {e}")
+#             # Cập nhật các trường nhập liệu
+#             self.create_entry_fields()
 
-def sort_data(column_name):
-    try:
-        if column_name not in df.columns:
-            messagebox.showwarning("Cảnh báo", "Vui lòng chọn cột hợp lệ để sắp xếp.")
-            return
-        df.sort_values(by=column_name, inplace=True)
-        load_data_to_treeview()
-        messagebox.showinfo("Thành công", f"Dữ liệu đã được sắp xếp theo {column_name} thành công!")
-    except Exception as e:
-        messagebox.showerror("Lỗi", f"Không thể sắp xếp dữ liệu: {e}")
+#             if show_message:
+#                 messagebox.showinfo("Thành công", "Dữ liệu đã được tải lên thành công!")
 
-# Tạo menu
-menu = tk.Menu(root)
-root.config(menu=menu)
+#         except Exception as e:
+#             messagebox.showerror("Lỗi", f"Không thể tải dữ liệu: {e}")
 
-file_menu = tk.Menu(menu, tearoff=0)
-menu.add_cascade(label="File", menu=file_menu)
-file_menu.add_command(label="Open", command=open_file)
-file_menu.add_separator()
-file_menu.add_command(label="Exit", command=root.quit)
+#     def on_row_select(self, event):
+#         """
+#         Khi người dùng chọn một dòng trong Treeview, dữ liệu của dòng đó
+#         sẽ được điền vào các trường nhập liệu để người dùng chỉnh sửa.
+#         """
+#         selected_item = self.tree.selection()
+#         if selected_item:
+#             item = self.tree.item(selected_item)
+#             row_values = item['values']
+#             for i, col in enumerate(self.df.columns):
+#                 if col in self.entries:
+#                     self.entries[col].delete(0, tk.END)
+#                     self.entries[col].insert(0, row_values[i])
 
-# Chạy vòng lặp chính của Tkinter
-root.mainloop()
+#     def open_file(self):
+#         """
+#         Mở file CSV và tải dữ liệu vào DataFrame. 
+#         Hiển thị dữ liệu trên Treeview nếu thành công.
+#         """
+#         file_path = filedialog.askopenfilename(filetypes=[("CSV Files", "*.csv")])
+#         if file_path:
+#             try:
+#                 self.df = pd.read_csv(file_path)
+#                 if self.df.empty:
+#                     messagebox.showwarning("Cảnh báo", "File CSV không có dữ liệu.")
+#                     return
+#                 self.load_data_to_treeview(show_message=True)
+#             except Exception as e:
+#                 messagebox.showerror("Lỗi", f"Không thể mở file CSV: {e}")
+#         else:
+#             messagebox.showinfo("Thông báo", "Chưa chọn file CSV nào.")
+
+#     def create_entry_fields(self):
+#         """Tạo các trường nhập liệu và các nút chức năng CRUD."""
+#         if hasattr(self, 'entry_frame'):
+#             self.entry_frame.destroy()
+
+#         self.entry_frame = tk.Frame(self.root, bg="#f0f0f0")
+#         self.entry_frame.pack(fill=tk.BOTH, padx=10, pady=10)
+        
+#         # Lưu tất cả các trường nhập liệu trong từ điển
+#         self.entries = {}
+        
+#         # Tạo nhãn và trường nhập liệu cho từng cột
+#         for i, col in enumerate(self.df.columns):
+#             label = tk.Label(self.entry_frame, text=col, bg="#f0f0f0", font=("Arial", 10, "bold"))
+#             label.grid(row=0, column=i, padx=5, pady=5)
+#             entry = tk.Entry(self.entry_frame)
+#             entry.grid(row=1, column=i, padx=5, pady=5)
+#             self.entries[col] = entry
+        
+#         # Tạo các nút chức năng
+#         btn_add = tk.Button(self.entry_frame, text="Add", command=self.create_entry, bg="#4CAF50", fg="white")
+#         btn_add.grid(row=2, column=0, padx=5, pady=5)
+
+#         btn_update = tk.Button(self.entry_frame, text="Update", command=self.update_entry, bg="#FFA500", fg="white")
+#         btn_update.grid(row=2, column=1, padx=5, pady=5)
+
+#         btn_delete = tk.Button(self.entry_frame, text="Delete", command=self.delete_entry, bg="#f44336", fg="white")
+#         btn_delete.grid(row=2, column=2, padx=5, pady=5)
+
+#         btn_save = tk.Button(self.entry_frame, text="Save", command=self.save_to_csv, bg="#00796B", fg="white")
+#         btn_save.grid(row=2, column=3, padx=5, pady=5)
+
+#     def create_entry(self):
+#         """Thêm một dòng mới vào DataFrame dựa trên các trường nhập liệu."""
+#         new_data = [entry.get() for entry in self.entries.values()]
+#         if len(new_data) == len(self.df.columns):
+#             new_row = pd.Series(new_data, index=self.df.columns)
+#             self.df = pd.concat([self.df, pd.DataFrame([new_row])], ignore_index=True)
+#             self.load_data_to_treeview()
+
+#     def update_entry(self):
+#         """Cập nhật dòng dữ liệu đã chọn dựa trên giá trị trong các trường nhập liệu."""
+#         selected_item = self.tree.selection()
+#         if not selected_item:
+#             messagebox.showwarning("Cảnh báo", "Chưa chọn dòng để cập nhật.")
+#             return
+
+#         item_id = selected_item[0]
+#         values = [entry.get() for entry in self.entries.values()]
+#         for i, col in enumerate(self.df.columns):
+#             # Lấy kiểu dữ liệu của cột hiện tại
+#             col_dtype = self.df[col].dtype
+#             # Chuyển đổi giá trị đầu vào thành kiểu dữ liệu tương ứng
+#             if col_dtype == 'int64':
+#                 self.df.at[int(item_id), col] = int(values[i]) if values[i] else None
+#             elif col_dtype == 'float64':
+#                 self.df.at[int(item_id), col] = float(values[i]) if values[i] else None
+#             else:
+#                 self.df.at[int(item_id), col] = values[i]
+        
+#         self.load_data_to_treeview()
+
+#     def delete_entry(self):
+#         """Xóa dòng dữ liệu đã chọn trong DataFrame và cập nhật lại Treeview."""
+#         try:
+#             selected_item = self.tree.selection()[0]
+#             self.df.drop(int(selected_item), inplace=True)
+#             self.df.reset_index(drop=True, inplace=True)
+#             self.load_data_to_treeview()
+#         except IndexError:
+#             messagebox.showwarning("Cảnh báo", "Chưa chọn dòng để xóa.")
+#         except Exception as e:
+#             messagebox.showerror("Lỗi", f"Không thể xóa dữ liệu: {e}")
+
+#     def save_to_csv(self):
+#         """Lưu DataFrame hiện tại ra tệp CSV theo đường dẫn người dùng chọn."""
+#         file_path = filedialog.asksaveasfilename(defaultextension=".csv", filetypes=[("CSV Files", "*.csv")])
+#         if file_path:
+#             self.df.to_csv(file_path, index=False)
+#             messagebox.showinfo("Thành công", "Dữ liệu đã được lưu thành công!")
+
+#     def sort_data(self, column_name):
+#         """Sắp xếp dữ liệu theo cột được chọn và hiển thị lại trên Treeview."""
+#         try:
+#             self.df.sort_values(by=column_name, inplace=True, ascending=self.sort_ascending)
+#             self.df.reset_index(drop=True, inplace=True)
+#             self.sort_ascending = not self.sort_ascending  # Đảo thứ tự sắp xếp cho lần sau
+#             self.load_data_to_treeview()
+#         except Exception as e:
+#             messagebox.showerror("Lỗi", f"Không thể sắp xếp dữ liệu: {e}")
+
+#     def create_menu(self):
+#         """Tạo menu với các tùy chọn File (Mở, Lưu, Thoát)."""
+#         menu = tk.Menu(self.root)
+#         self.root.config(menu=menu)
+
+#         file_menu = tk.Menu(menu, tearoff=0)
+#         menu.add_cascade(label="File", menu=file_menu)
+#         file_menu.add_command(label="Open", command=self.open_file)
+#         file_menu.add_command(label="Save", command=self.save_to_csv)
+#         file_menu.add_separator()
+#         file_menu.add_command(label="Exit", command=self.root.quit)
+
+# if __name__ == "__main__":
+#     root = tk.Tk()
+#     app = VideoGameSalesApp(root)
+#     root.mainloop()
