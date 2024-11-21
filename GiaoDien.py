@@ -1,12 +1,3 @@
-'''
-import các thư viện cần thiết
-tkinter thư viện hỗ trợ đồ họa của python
-filediaglog modules cung cấp hộp thoại để người dùng tương tác với tập tin
-messagebox modules hiển thị thông báo, yêu cầu xác nhận từ người dùng
-pandas thư viện phân tích, xử lí dữ liệu tập tin
-matplotlib trực quan hóa dữ liệu dưới dạng biểu đồ
-threading 
-''' 
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 import pandas as pd
@@ -18,41 +9,36 @@ import Standardization
 # Khởi tạo cửa sổ chính
 root = tk.Tk()
 root.title("Quản Lý Dữ Liệu Video Game Sales")
-root.iconbitmap("D:\\DanhSachDoAnCuoiKy\\Images\\Icon.ico")
 root.geometry("1400x700")
 root.configure(bg="#f0f0f0")
 
 # Khung chính để hiển thị dữ liệu
-main_frame = tk.Frame(root, bg="#f0f0f0") # Tạo ra một frame để chứa các widget như nút, nhãn...
+main_frame = tk.Frame(root, bg="#f0f0f0")
 main_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
-'''
-pack giúp định vị main_frame trên root
-fill = tk.BOTH cho phép main_frame lắp đầy root
-expand = True cho phép main_frame thay đổi kích thước khi mở rộng cửa sổ root
-padx, pady tạo khoảng cách main_frame với root
-'''
+
+# Khung dành cho cơ chế phân trang
+nav_frame = tk.Frame(root, bg="#f0f0f0")
+nav_frame.pack(fill=tk.X, padx=10, pady=10)
+
+# Khung dành cho các hàm chức năng
+function_frame = tk.Frame(root, bg="#f0f0f0")
+function_frame.pack(fill=tk.X, padx=10, pady=10)
+
 # Biến lưu trữ DataFrame
 df = pd.DataFrame()
-
 
 # Tạo Treeview để hiển thị dữ liệu
 tree = ttk.Treeview(main_frame, height=11) 
 tree.pack(fill=tk.BOTH, expand=True)
 
-# Khung dành cho các nút chuyển trang
-nav_frame = tk.Frame(root, bg="#f0f0f0")
-nav_frame.pack(fill=tk.X, padx=10, pady=10)
-
-# Khung nhập liệu cho các thao tác CRUD
-entry_frame = tk.Frame(root, bg="#f0f0f0")
-entry_frame.pack(fill=tk.X, padx=10, pady=10)
-
 # Các biến phân trang
-ROWS_PER_PAGE = 10  # Số dòng hiển thị trên mỗi trang
+ROWS_PER_PAGE = 20  # Số dòng hiển thị trên mỗi trang
 current_page = 1  # Trang hiện tại
 total_pages = 1  # Tổng số trang
 
+
 def load_data_to_treeview(show_message=False):
+    ''' Hàm hiển thị dữ liệu từ File ra màn hình'''
     global df, file_path, total_pages
     try:
         df = pd.read_csv(file_path)
@@ -73,6 +59,7 @@ def load_data_to_treeview(show_message=False):
             tree.heading(col, text=col)
             tree.column(col, width=120, anchor="center")
 
+        # Hiển thị các hàng trên trang hiện tại
         start_row = (current_page - 1) * ROWS_PER_PAGE
         end_row = start_row + ROWS_PER_PAGE
         page_data = df.iloc[start_row: end_row]
@@ -81,6 +68,7 @@ def load_data_to_treeview(show_message=False):
 
         # Cập nhật trạng thái nút chuyển trang
         update_navigation_buttons()
+
         # Hiển thị các nút chức năng
         create_entry_fields()
 
@@ -91,6 +79,7 @@ def load_data_to_treeview(show_message=False):
         messagebox.showerror("Lỗi", f"Không thể tải dữ liệu: {e}")
 
 def update_navigation_buttons():
+    '''Hàm cập nhật trạng thái các nút của cơ chế phân trang'''
     global current_page, total_pages
 
     # Xóa các nút cũ trong nav_frame
@@ -109,12 +98,12 @@ def update_navigation_buttons():
     page_label = tk.Label(nav_frame, text=f"Trang {current_page} / {total_pages}", font=("Arial", 10, "bold"))
     page_label.grid(row=0, column=2, padx=5, pady=5)
 
-    # Tạo label nhập số trang
+    # Tạo nhãn nhập số trang
     input_label = tk.Label(nav_frame, text="Nhập trang bạn muốn đi tới", font=("Arial", 10, "bold"), bg= "#708090")
     input_label.grid(row=0, column=3, padx=5, pady=5, sticky='e')
 
     global input_entry
-    # Nhập số trang muốn đi tới
+    # Tạo ô nhập dữ liệu số trang muốn đi tới
     input_entry = tk.Entry(nav_frame, width=15)
     input_entry.grid(row=0, column=4, padx=5, pady=5)
 
@@ -122,22 +111,22 @@ def update_navigation_buttons():
     input_btn = tk.Button(nav_frame, text="Nhập", font=("Arial", 10, "bold"), command=input_page)
     input_btn.grid(row=1, column=4, padx=5, pady=5)
 
-# Hàm chuyển đến trang trước
 def prev_page():
+    '''Hàm chuyển đến trang trước'''
     global current_page
     if current_page > 1:
         current_page -= 1
         load_data_to_treeview()
 
-# Hàm chuyển đến trang sau
 def next_page():
+    '''Hàm chuyển đến trang sau'''
     global current_page
     if current_page < total_pages:
         current_page += 1
         load_data_to_treeview()
 
-# Hàm cho nhập số trang
 def input_page():
+    '''Hàm nhập số thứ tự trang mà người dùng muốn xem'''
     global input_entry, total_pages, current_page
     page = int(input_entry.get())
     if 1 <= page <= total_pages:
@@ -146,8 +135,8 @@ def input_page():
     else:
         messagebox.showerror("Lỗi", "Trang bạn nhập không tồn tại")
 
-# Hàm mở file CSV
 def open_file():
+    '''Hàm mở File csv được người dùng lựa chọn'''
     global file_path, df
     file_path = filedialog.askopenfilename(filetypes=[("CSV Files", "*.csv")])
 
@@ -163,9 +152,10 @@ def open_file():
     else: # Trường hợp chưa chọn file
         messagebox.showinfo("Thông báo", "Chưa chọn file CSV nào.")
 
-# Hàm tạo các trường nhập liệu và các nút chức năng
+
 def create_entry_fields():
-    for widget in entry_frame.winfo_children():
+    '''Hàm tạo các trường nhập dữ liệu cho các nút chức năng'''
+    for widget in function_frame.winfo_children():
         widget.destroy()
 
     global entries
@@ -173,40 +163,43 @@ def create_entry_fields():
 
     if not df.empty:
         columns = list(df.columns) # tên các tiêu đề cột
-        columns.pop()
-        for i, col in enumerate(columns):
-            label = tk.Label(entry_frame, text=col, bg="#f0f0f0", font=("Arial", 10, "bold"))
+        i = 0
+        for col in range(1, len(columns)-1):
+            label = tk.Label(function_frame, text=columns[col], bg="#f0f0f0", font=("Arial", 10, "bold"))
             label.grid(row=0, column=i, padx=5, pady=5, sticky="w")
-            entry = tk.Entry(entry_frame, width=15)  # Điều chỉnh độ rộng của ô nhập liệu
+            entry = tk.Entry(function_frame, width=15)
             entry.grid(row=1, column=i, padx=5, pady=5, sticky="w")
-            entries[col] = entry
+            entries[columns[col]] = entry # Tham chiếu tên cột với ô nhập dữ liệu của cột đó
+            i += 1
 
-    create_btn = tk.Button(entry_frame, text="Add", bg="#4CAF50", fg="white", font=("Arial", 10, "bold"), command=create_entry)
+    create_btn = tk.Button(function_frame, text="Create", bg="#4CAF50", fg="white", font=("Arial", 10, "bold"), command=create_entry)
     create_btn.grid(row=2, column=0, padx=5, pady=5)
 
-    update_btn = tk.Button(entry_frame, text="Update", bg="#FFA500", fg="white", font=("Arial", 10, "bold"), command=update_entry)
+    update_btn = tk.Button(function_frame, text="Update", bg="#FFA500", fg="white", font=("Arial", 10, "bold"), command=update_entry)
     update_btn.grid(row=2, column=1, padx=5, pady=5)
 
-    delete_btn = tk.Button(entry_frame, text="Delete", bg="#f44336", fg="white", font=("Arial", 10, "bold"), command=delete_entry)
+    delete_btn = tk.Button(function_frame, text="Delete", bg="#f44336", fg="white", font=("Arial", 10, "bold"), command=delete_entry)
     delete_btn.grid(row=2, column=2, padx=5, pady=5)
 
-    plot_btn = tk.Button(entry_frame, text="Graphic", bg="#2196F3", fg="white", font=("Arial", 10, "bold"), command=choose_graphic)
+    plot_btn = tk.Button(function_frame, text="Graphic", bg="#2196F3", fg="white", font=("Arial", 10, "bold"), command=choose_graphic)
     plot_btn.grid(row=2, column=3, padx=5, pady=5)
 
-    sort_label = tk.Label(entry_frame, text="Sắp xếp theo:", bg="#f0f0f0", font=("Arial", 10, "bold"))
+    sort_label = tk.Label(function_frame, text="Sắp xếp theo:", bg="#f0f0f0", font=("Arial", 10, "bold"))
     sort_label.grid(row=2, column=4, padx=5, pady=5)
 
-    sort_combobox = ttk.Combobox(entry_frame, values=list(df.columns))
+    sort_combobox = ttk.Combobox(function_frame, values=list(df.columns))
     sort_combobox.grid(row=2, column=5, padx=5, pady=5)
 
-    sort_btn = tk.Button(entry_frame, text="Sort", bg="#9C27B0", fg="white", font=("Arial", 10, "bold"),
+    sort_btn = tk.Button(function_frame, text="Sort", bg="#9C27B0", fg="white", font=("Arial", 10, "bold"),
                          command=lambda: sort_data(sort_combobox.get()))
     sort_btn.grid(row=2, column=6, padx=5, pady=5)
 
-# Các hàm CRUD cơ bản để thực hiện chức năng
+# Tạo biến cho các chức năng CRUD
+manager = CRUD.CSVManager(file_path)
+
 def create_entry():
-    # Biến lưu chức năng CRUD
-    manager = CRUD.CSVManager(file_path)
+    '''Hàm xử lý sự kiện chức năng thêm hàng mới'''
+    global manager
     new_data = [entry.get() for entry in entries.values()]
 
     # Chuyển đổi giá trị Rank trong new_data về kiểu phù hợp
@@ -224,6 +217,7 @@ def create_entry():
         load_data_to_treeview()  # Tải lại Treeview sau khi thêm hàng mới
 
 def update_entry():
+    '''Hàm xử lý sự kiện cho chức năng cập nhật hàng'''
     try:
         selected_item = tree.selection()[0]
         values = [entry.get() for entry in entries.values()]
@@ -240,6 +234,7 @@ def update_entry():
         messagebox.showerror("Lỗi", f"Không thể cập nhật dữ liệu: {e}")
 
 def delete_entry():
+    '''Hàm xử lý sự kiện cho chức năng xóa hàng'''
     global file_path
     manager = CRUD.CSVManager(file_path)
     try:
