@@ -135,6 +135,7 @@ def input_page():
     else:
         messagebox.showerror("Lỗi", "Trang bạn nhập không tồn tại")
 
+file_path = None
 def open_file():
     '''Hàm mở File csv được người dùng lựa chọn'''
     global file_path, df
@@ -194,40 +195,30 @@ def create_entry_fields():
                          command=lambda: sort_data(sort_combobox.get()))
     sort_btn.grid(row=2, column=6, padx=5, pady=5)
 
-# Tạo biến cho các chức năng CRUD
+# Biến cho các chức năng CRUD
 manager = CRUD.CSVManager(file_path)
-
 def create_entry():
     '''Hàm xử lý sự kiện chức năng thêm hàng mới'''
     global manager
-    new_data = [entry.get() for entry in entries.values()]
-
+    new_data = [entry.get() for entry in entries.values()] # Đây ;à các giá trị lấy được từ ô dũ liệu
     # Chuyển đổi giá trị Rank trong new_data về kiểu phù hợp
     try:
         rank_value = int(new_data[0])  # Nếu cột "Rank" là số, chuyển thành số nguyên
     except ValueError:
         messagebox.showerror("Lỗi", "Giá trị Rank phải là một số.")
         return
-
-    # Kiểm tra xem rank_value đã tồn tại trong df["Rank"] hay chưa
-    if rank_value in df["Rank"].values:
-        messagebox.showerror("Lỗi", "Giá trị Rank bạn vừa nhập đã tồn tại.")
-    else:
-        manager.create(new_data)
-        load_data_to_treeview()  # Tải lại Treeview sau khi thêm hàng mới
+    manager.create(new_data)
+    load_data_to_treeview()  # Tải lại Treeview sau khi thêm hàng mới
 
 def update_entry():
     '''Hàm xử lý sự kiện cho chức năng cập nhật hàng'''
+    global manager
     try:
-        selected_item = tree.selection()[0]
+        selected_item = tree.selection()[0]   
         values = [entry.get() for entry in entries.values()]
-        if len(values) == len(df.columns):
-            for i, col in enumerate(df.columns):
-                df.at[int(selected_item), col] = values[i]
-            load_data_to_treeview()
-            messagebox.showinfo("Thành công", "Dữ liệu đã được cập nhật thành công!")
-        else:
-            messagebox.showwarning("Cảnh báo", "Hãy nhập đủ thông tin vào các trường dữ liệu.")
+        manager.delete(selected_item, values) # Truyền vào hàng cần cập nhật và dữ liệu mới
+        load_data_to_treeview()
+        messagebox.showinfo("Thành công", "Dữ liệu đã được cập nhật thành công!")
     except IndexError:
         messagebox.showwarning("Cảnh báo", "Chưa chọn dòng để cập nhật.")
     except Exception as e:
@@ -235,8 +226,7 @@ def update_entry():
 
 def delete_entry():
     '''Hàm xử lý sự kiện cho chức năng xóa hàng'''
-    global file_path
-    manager = CRUD.CSVManager(file_path)
+    global manager
     try:
         selected_item = tree.selection()[0] # Lấy ID của phần tử đầu tiên được chọn (ID này đã được đặt theo rank)
         manager.delete(selected_item)
