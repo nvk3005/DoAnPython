@@ -1,9 +1,10 @@
+import csv
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 import pandas as pd
 import matplotlib.pyplot as plt
 import threading
-import CRUD
+import CRUD_TEST
 import Standardization
 
 # Khởi tạo cửa sổ chính
@@ -41,7 +42,7 @@ def load_data_to_treeview(show_message=False):
     ''' Hàm hiển thị dữ liệu từ File ra màn hình'''
     global df, file_path, total_pages
     try:
-        df = pd.read_csv(file_path)
+        df = pd.read_csv(file_path, low_memory=False)
         if df.empty:
             messagebox.showwarning("Cảnh báo", "File CSV không có dữ liệu.")
             return
@@ -143,7 +144,7 @@ def open_file():
 
     if file_path: # Trường hợp đã chọn file
         try:
-            df = pd.read_csv(file_path)
+            df = pd.read_csv(file_path, low_memory=False)
             if df.empty:
                 messagebox.showwarning("Cảnh báo", "File CSV không có dữ liệu.")
                 return
@@ -195,20 +196,40 @@ def create_entry_fields():
                          command=lambda: sort_data(sort_combobox.get()))
     sort_btn.grid(row=2, column=6, padx=5, pady=5)
 
-# Biến cho các chức năng CRUD
-manager = CRUD.CSVManager(file_path)
+# Biến cho các chức năng CRUD_TEST
+file_path = 'cleanData.csv'
+manager = CRUD_TEST.CSVManager(file_path)
+
 def create_entry():
     '''Hàm xử lý sự kiện chức năng thêm hàng mới'''
     global manager
-    new_data = [entry.get() for entry in entries.values()] # Đây ;à các giá trị lấy được từ ô dũ liệu
-    # Chuyển đổi giá trị Rank trong new_data về kiểu phù hợp
-    try:
-        rank_value = int(new_data[0])  # Nếu cột "Rank" là số, chuyển thành số nguyên
-    except ValueError:
-        messagebox.showerror("Lỗi", "Giá trị Rank phải là một số.")
-        return
-    manager.create(new_data)
+    new_data_with_rank = []
+    new_data = [entry.get() for entry in entries.values()]  # Đây là các giá trị lấy được từ ô dữ liệu
+
+    # Lấy rank ID cuối cùng
+    with open(manager.file_path, mode='r', encoding='utf-8') as file:
+        reader = csv.reader(file)
+        next(reader)  # Bỏ qua dòng tiêu đề
+        last_rank_id = 0
+        for row in reader:
+            if row:  # Kiểm tra xem hàng có dữ liệu không
+                last_rank_id = int(row[0])  # Giả sử Rank ID là cột đầu tiên
+
+    new_rank_id = last_rank_id + 1  # Tạo rank ID mới
+
+    # Thêm rank ID mới vào dữ liệu
+    globalSales = int(new_data[5]) + int(new_data[6]) + int(new_data[7]) + int(new_data[8])
+    # new_data_with_rank = [new_rank_id] + new_data + globalSales
+    new_data_with_rank.append(new_rank_id)
+    for x in new_data:
+        new_data_with_rank.append(x)
+    new_data_with_rank.append(globalSales)
+
+    # Thêm dữ liệu mới vào file CSV
+    manager.create(new_data_with_rank)
     load_data_to_treeview()  # Tải lại Treeview sau khi thêm hàng mới
+    messagebox.showinfo("Thành công", "Dữ liệu đã được thêm thành công!")
+
 
 def update_entry():
     '''Hàm xử lý sự kiện cho chức năng cập nhật hàng'''
@@ -216,7 +237,9 @@ def update_entry():
     try:
         selected_item = tree.selection()[0]   
         values = [entry.get() for entry in entries.values()]
-        manager.delete(selected_item, values) # Truyền vào hàng cần cập nhật và dữ liệu mới
+        globalSales = int(values[5]) + int(values[6]) + int(values[7]) + int(values[8])
+        values.append(globalSales)
+        manager.update(selected_item, values) # Truyền vào hàng cần cập nhật và dữ liệu mới
         load_data_to_treeview()
         messagebox.showinfo("Thành công", "Dữ liệu đã được cập nhật thành công!")
     except IndexError:
