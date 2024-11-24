@@ -2,7 +2,6 @@ import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 import pandas as pd
 import matplotlib.pyplot as plt
-import CRUD
 import Standardization
 from Data_visualization import VideoGameBarChart
 
@@ -112,7 +111,7 @@ def next_page():
 
 def open_file():
     '''Hàm mở File csv được người dùng lựa chọn'''
-    global file_path, df, manager
+    global file_path, df
     file_path = filedialog.askopenfilename(filetypes=[("CSV Files", "*.csv")])
 
     if file_path:  # Trường hợp đã chọn file
@@ -121,8 +120,6 @@ def open_file():
             if df.empty:
                 messagebox.showwarning("Cảnh báo", "File CSV không có dữ liệu.")
                 return
-            # Khởi tạo manager với đường dẫn file
-            manager = CRUD.CSVManager(file_path)
             load_data_to_treeview(show_message=True)
         except Exception as e:  # Bắt bất kỳ ngoại lệ nào.
             messagebox.showerror("Lỗi", f"Không thể mở file CSV: {e}")
@@ -211,7 +208,7 @@ def create_entry_fields():
 # Biến cho các chức năng CRUD
 def create_entry():
     '''Hàm xử lý sự kiện chức năng thêm hàng mới'''
-    global manager
+    global df
     try:
         # Lấy dữ liệu từ các ô nhập
         new_data = {col: entries[col].get() for col in entries}
@@ -225,8 +222,8 @@ def create_entry():
             )
             return
 
-        # Gọi hàm create trong manager
-        manager.create(**new_data)
+        # Thêm dữ liệu vào DataFrame
+        df = df.append(new_data, ignore_index=True)
 
         # Tải lại Treeview sau khi thêm hàng mới
         load_data_to_treeview()
@@ -238,7 +235,7 @@ def create_entry():
 
 def update_entry():
     '''Hàm xử lý sự kiện cho chức năng cập nhật hàng'''
-    global manager
+    global df
     try:
         # Lấy dữ liệu mới từ các ô nhập
         new_data = {col: entries[col].get() for col in entries}
@@ -254,10 +251,11 @@ def update_entry():
 
         # Lấy dòng được chọn từ Treeview
         selected_item = tree.selection()[0]
-        selected_item = int(selected_item)
+        selected_index = int(selected_item)
 
-        # Gọi hàm update trong manager
-        manager.update(selected_item, **new_data)
+        # Cập nhật dữ liệu trong DataFrame
+        for col, value in new_data.items():
+            df.at[selected_index, col] = value
 
         # Tải lại Treeview sau khi cập nhật
         load_data_to_treeview()
@@ -271,10 +269,15 @@ def update_entry():
 
 def delete_entry():
     '''Hàm xử lý sự kiện cho chức năng xóa hàng'''
-    global manager
+    global df
     try:
         selected_item = tree.selection()[0] # Lấy ID của phần tử đầu tiên được chọn
-        manager.delete(selected_item)
+        selected_index = int(selected_item)
+
+        # Xóa dòng trong DataFrame
+        df = df.drop(selected_index).reset_index(drop=True)
+
+        # Tải lại Treeview sau khi xóa
         load_data_to_treeview()
         messagebox.showinfo("Thành công", "Dữ liệu đã được xóa thành công!")
     except IndexError:
@@ -341,7 +344,7 @@ def choose_graphic():
                     return
                 pie_data = data[selected_columns[0]].value_counts()
                 if len(pie_data) > 10:
-                    pie_data = pie_data[:9].append(pd.Series(pie_data[9:].sum(), index=["Khác"]))
+                    pie_data = pd.concat([pie_data.iloc[:9], pd.Series([pie_data.iloc[9:].sum()], index=["Khác"])])
                 pie_data.plot(kind='pie', title="Biểu đồ tròn", autopct='%1.1f%%')
                 plt.ylabel("")
             elif chart_type == "Line Chart":
