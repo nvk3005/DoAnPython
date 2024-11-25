@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 import pandas as pd
 import matplotlib.pyplot as plt
-from Data_visualization import read_data, plot_sales_by_year, plot_sales_by_genre, plot_region_sales, plot_top_10_games
+from Data_visualization import plot_sales_by_year, plot_sales_by_genre, plot_region_sales, plot_top_10_games
 from threading import Thread
 import CRUD
 import Search
