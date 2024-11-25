@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 import pandas as pd
 import matplotlib.pyplot as plt
+from Data_visualization import read_data, plot_sales_by_year, plot_sales_by_genre, plot_region_sales, plot_top_10_games
 from threading import Thread
 import CRUD
 import Search
@@ -311,93 +312,39 @@ def delete_entry():
         messagebox.showwarning("Cảnh báo", "Chưa chọn dòng để xóa.")
     except Exception as e:
         messagebox.showerror("Lỗi", f"Không thể xóa dữ liệu: {e}")
+        import matplotlib.pyplot as plt
+
 
 def choose_graphic():
-    """Hàm hỗ trợ người dùng chọn cột và loại biểu đồ để vẽ."""
+    """Hàm chọn loại biểu đồ để vẽ."""
     try:
-        # Lọc các cột kiểu số
-        numeric_columns = [col for col in df.columns if pd.api.types.is_numeric_dtype(df[col])]
-        if not numeric_columns:
-            messagebox.showwarning("Cảnh báo", "Không có cột nào có dữ liệu số để vẽ biểu đồ.")
+        graphic_window = tk.Toplevel(root)
+        graphic_window.title("Chọn Loại Biểu Đồ")
+        graphic_window.geometry("400x300")
+        graphic_window.configure(bg="#f0f0f0")
+
+        tk.Label(graphic_window, text="Chọn loại biểu đồ:", font=("Arial", 12, "bold"), bg="#f0f0f0").pack(pady=10)
+         # Kiểm tra nếu `df` có dữ liệu
+        if df.empty:
+            messagebox.showerror("Lỗi", "Không có dữ liệu để vẽ biểu đồ. Vui lòng mở file CSV trước.")
             return
 
-        # Tạo cửa sổ chọn cột và loại biểu đồ
-        select_window = tk.Toplevel(root)
-        select_window.title("Chọn Cột và Loại Biểu Đồ")
-        select_window.geometry("400x400")
-        select_window.configure(bg="#f0f0f0")
+        def call_plot_sales_by_year():
+            plot_sales_by_year(df)
 
-        tk.Label(select_window, text="Chọn cột để vẽ:", font=("Arial", 12, "bold"), bg="#f0f0f0").pack(pady=10)
+        def call_plot_sales_by_genre():
+            plot_sales_by_genre(df)
 
-        # Danh sách các cột
-        listbox = tk.Listbox(select_window, selectmode="multiple")
-        for col in numeric_columns:
-            listbox.insert(tk.END, col)
-        listbox.pack(expand=True, fill=tk.BOTH, padx=20, pady=10)
+        def call_plot_region_sales():
+            plot_region_sales(df)
 
-        tk.Label(select_window, text="Chọn loại biểu đồ:", font=("Arial", 12, "bold"), bg="#f0f0f0").pack(pady=10)
+        def call_plot_top_10_games():
+            plot_top_10_games(df)
 
-        # Lựa chọn loại biểu đồ
-        chart_type_var = tk.StringVar(value="Cột")
-        chart_options = ["Cột", "Đường", "Tròn"]
-        for option in chart_options:
-            tk.Radiobutton(select_window, text=option, variable=chart_type_var, value=option, bg="#f0f0f0",
-                           font=("Arial", 10)).pack(anchor="w", padx=20)
-
-        # Hàm vẽ biểu đồ
-        def plot_selected():
-            selected_indices = listbox.curselection()
-            if not selected_indices:
-                messagebox.showwarning("Cảnh báo", "Vui lòng chọn ít nhất một cột để vẽ biểu đồ.")
-                return
-
-            selected_columns = [numeric_columns[i] for i in selected_indices]
-            chart_type = chart_type_var.get()
-
-            def draw_chart():
-                try:
-                    plt.figure(figsize=(10, 6))
-
-                    if chart_type == "Cột":
-                        df[selected_columns].plot(kind='bar', edgecolor='black')
-                    elif chart_type == "Đường":
-                        df[selected_columns].plot(kind='line')
-                    elif chart_type == "Tròn":
-                        if len(selected_columns) > 1:
-                            messagebox.showerror("Lỗi", "Biểu đồ tròn chỉ hỗ trợ một cột.")
-                            return
-                        df[selected_columns[0]].value_counts().plot(kind='pie', autopct='%1.1f%%', startangle=140)
-                    else:
-                        messagebox.showerror("Lỗi", "Loại biểu đồ không được hỗ trợ.")
-                        return
-
-                    plt.title('Biểu Đồ So Sánh')
-                    plt.xlabel('Index')
-                    plt.ylabel('Giá Trị')
-                    plt.xticks(rotation=90)
-                    plt.tight_layout()
-                    plt.show()
-                except Exception as e:
-                    messagebox.showerror("Lỗi", f"Không thể vẽ biểu đồ: {e}")
-
-            # Tạo luồng mới để vẽ biểu đồ
-            thread = Thread(target=draw_chart)
-            thread.start()
-
-        # Nút Vẽ Biểu Đồ
-        tk.Button(select_window, 
-                  text="Vẽ Biểu Đồ",
-                  command=plot_selected,
-                  bg="#4CAF50", 
-                  fg="white",
-                  font=("Arial", 14, "bold"),
-                  padx=20,  # Tăng padding ngang
-                  pady=10,  # Tăng padding dọc
-                  relief="raised",  # Kiểu nút nổi
-                  height=5,
-                  width=15 
-        ).pack(pady=20)
-                     
+        tk.Button(graphic_window, text="Doanh số theo năm", command=call_plot_sales_by_year, bg="#4CAF50", fg="white").pack(pady=10)
+        tk.Button(graphic_window, text="Doanh số theo thể loại", command=call_plot_sales_by_genre, bg="#2196F3", fg="white").pack(pady=10)
+        tk.Button(graphic_window, text="Tỷ lệ doanh số theo khu vực", command=call_plot_region_sales, bg="#FF9800", fg="white").pack(pady=10)
+        tk.Button(graphic_window, text="Top 10 trò chơi bán chạy", command=call_plot_top_10_games, bg="#800080", fg="white").pack(pady=10)
     except Exception as e:
         messagebox.showerror("Lỗi", f"Không thể tạo giao diện biểu đồ: {e}")
 
