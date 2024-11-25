@@ -1,11 +1,10 @@
-import csv
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 import pandas as pd
 import matplotlib.pyplot as plt
-import threading
+from threading import Thread
 import CRUD
-import Standardization
+import Search
 
 # Khởi tạo cửa sổ chính
 root = tk.Tk()
@@ -40,8 +39,13 @@ total_pages = 1  # Tổng số trang
 
 def load_data_to_treeview(show_message=False):
     ''' Hàm hiển thị dữ liệu từ File ra màn hình'''
-    global df, file_path, total_pages
+    global df, file_path, total_pages, current_page
     try:
+        df = pd.read_csv(file_path, low_memory=False)
+        if df.empty:
+            messagebox.showwarning("Cảnh báo", "File CSV không có dữ liệu.")
+            return
+
         total_pages = len(df) // ROWS_PER_PAGE + (1 if len(df) % ROWS_PER_PAGE > 0 else 0)
 
         # Xóa dữ liệu cũ trong Treeview
@@ -59,8 +63,10 @@ def load_data_to_treeview(show_message=False):
         start_row = (current_page - 1) * ROWS_PER_PAGE
         end_row = start_row + ROWS_PER_PAGE
         page_data = df.iloc[start_row: end_row]
-        for index, row in page_data.iterrows():
-            tree.insert("", "end", iid=index, values=list(row))
+
+         # Hiển thị dữ liệu lên Treeview
+        for _, row in page_data.iterrows():
+            tree.insert("", "end", iid=row["Rank"], values=list(row))
 
         # Cập nhật trạng thái nút chuyển trang
         update_navigation_buttons()
@@ -124,15 +130,12 @@ def next_page():
 def input_page():
     '''Hàm nhập số thứ tự trang mà người dùng muốn xem'''
     global input_entry, total_pages, current_page
-    try:
-        page = int(input_entry.get())
-        if 1 <= page <= total_pages:
-            current_page = page
-            load_data_to_treeview()
-        else:
-            messagebox.showerror("Lỗi", "Trang bạn nhập không tồn tại")
-    except ValueError:
-        messagebox.showerror("Lỗi", "Vui lòng nhập một số hợp lệ")
+    page = int(input_entry.get())
+    if 1 <= page <= total_pages:
+        current_page = page
+        load_data_to_treeview()
+    else:
+        messagebox.showerror("Lỗi", "Trang bạn nhập không tồn tại")
 
 file_path = None
 def open_file():
@@ -142,10 +145,11 @@ def open_file():
 
     if file_path:  # Trường hợp đã chọn file
         try:
-            df = pd.read_csv(file_path, low_memory=False)
-            if df.empty:
+            new_df = pd.read_csv(file_path, low_memory=False)
+            if new_df.empty:
                 messagebox.showwarning("Cảnh báo", "File CSV không có dữ liệu.")
                 return
+            df=new_df
             # Khởi tạo manager với đường dẫn file
             manager = CRUD.CSVManager(file_path)
             load_data_to_treeview(show_message=True)
@@ -185,22 +189,20 @@ def create_entry_fields():
 
     plot_btn = tk.Button(function_frame, text="Graphic", bg="#2196F3", fg="white", font=("Arial", 10, "bold"), command=choose_graphic)
     plot_btn.grid(row=2, column=3, padx=5, pady=5)
-
-    sort_label = tk.Label(function_frame, text="Sắp xếp theo:", bg="#f0f0f0", font=("Arial", 10, "bold"))
-    sort_label.grid(row=2, column=4, padx=5, pady=5)
-
-    sort_combobox = ttk.Combobox(function_frame, values=list(df.columns))
+    # Thêm vào phần nút sắp xếp trong giao diện
+    sort_combobox = ttk.Combobox(function_frame, values=list(df.columns), state="readonly")
     sort_combobox.grid(row=2, column=5, padx=5, pady=5)
-
-    order_label = tk.Label(function_frame, text="Kiểu sắp xếp:", bg="#f0f0f0", font=("Arial", 10, "bold"))
-    order_label.grid(row=2, column=6, padx=5, pady=5)
-
     order_combobox = ttk.Combobox(function_frame, values=["Tăng dần", "Giảm dần"], state="readonly")
-    order_combobox.grid(row=2, column=7, padx=5, pady=5)
-
-    sort_btn = tk.Button(function_frame, text="Sắp xếp", bg="#8BC34A", fg="white", font=("Arial", 10, "bold"),
-                         command=lambda: sort_data(sort_combobox.get(), order_combobox.get() == "Tăng dần"))
-    sort_btn.grid(row=2, column=8, padx=5, pady=5)
+    order_combobox.grid(row=2, column=6, padx=5, pady=5)
+    sort_btn = tk.Button(
+        function_frame, 
+        text="Sắp xếp",
+        bg="#8BC34A",
+        fg="white", 
+        font=("Arial", 10, "bold"),
+        command=lambda: sort_data(sort_combobox.get(), order_combobox.get() == "Tăng dần")
+    )
+    sort_btn.grid(row=2, column=7, padx=5, pady=5)
 
     search_label = tk.Label(function_frame, text="Tìm kiếm theo:", bg="#f0f0f0", font=("Arial", 10, "bold"))
     search_label.grid(row=2, column=9, padx=5, pady=5)
@@ -209,7 +211,7 @@ def create_entry_fields():
     search_combobox.grid(row=2, column=10, padx=5, pady=5)
 
     search_btn = tk.Button(function_frame, text="Tìm", bg="#2e8b57", fg="white", font=("Arial", 10, "bold"),
-                           command=lambda: search_data(search_combobox.get()))
+                       command=lambda: search_data(search_combobox.get()))
     search_btn.grid(row=2, column=11, padx=5, pady=5)
 
 # Biến cho các chức năng CRUD
@@ -311,35 +313,64 @@ def delete_entry():
         messagebox.showerror("Lỗi", f"Không thể xóa dữ liệu: {e}")
 
 def choose_graphic():
+    """Hàm hỗ trợ người dùng chọn cột và loại biểu đồ để vẽ."""
     try:
-        columns = [col for col in df.columns if df[col].dtype in ['int64', 'float64']]
-        if not columns:
+        # Lọc các cột kiểu số
+        numeric_columns = [col for col in df.columns if pd.api.types.is_numeric_dtype(df[col])]
+        if not numeric_columns:
             messagebox.showwarning("Cảnh báo", "Không có cột nào có dữ liệu số để vẽ biểu đồ.")
             return
+
+        # Tạo cửa sổ chọn cột và loại biểu đồ
         select_window = tk.Toplevel(root)
-        select_window.title("Chọn Cột Vẽ Biểu Đồ")
-        select_window.geometry("400x300")
+        select_window.title("Chọn Cột và Loại Biểu Đồ")
+        select_window.geometry("400x400")
         select_window.configure(bg="#f0f0f0")
 
+        tk.Label(select_window, text="Chọn cột để vẽ:", font=("Arial", 12, "bold"), bg="#f0f0f0").pack(pady=10)
+
+        # Danh sách các cột
         listbox = tk.Listbox(select_window, selectmode="multiple")
-        listbox.pack(expand=True, fill=tk.BOTH, padx=20, pady=20)
-
-        for col in columns:
+        for col in numeric_columns:
             listbox.insert(tk.END, col)
+        listbox.pack(expand=True, fill=tk.BOTH, padx=20, pady=10)
 
+        tk.Label(select_window, text="Chọn loại biểu đồ:", font=("Arial", 12, "bold"), bg="#f0f0f0").pack(pady=10)
+
+        # Lựa chọn loại biểu đồ
+        chart_type_var = tk.StringVar(value="Cột")
+        chart_options = ["Cột", "Đường", "Tròn"]
+        for option in chart_options:
+            tk.Radiobutton(select_window, text=option, variable=chart_type_var, value=option, bg="#f0f0f0",
+                           font=("Arial", 10)).pack(anchor="w", padx=20)
+
+        # Hàm vẽ biểu đồ
         def plot_selected():
             selected_indices = listbox.curselection()
             if not selected_indices:
                 messagebox.showwarning("Cảnh báo", "Vui lòng chọn ít nhất một cột để vẽ biểu đồ.")
                 return
 
-            selected_columns = [columns[i] for i in selected_indices]
+            selected_columns = [numeric_columns[i] for i in selected_indices]
+            chart_type = chart_type_var.get()
 
-            # Tạo luồng mới để vẽ biểu đồ
-            def plot_thread():
-                plt.ion()  # Bật chế độ interactive mode
+            def draw_chart():
                 try:
-                    df[selected_columns].plot(kind='bar', figsize=(10, 6))
+                    plt.figure(figsize=(10, 6))
+
+                    if chart_type == "Cột":
+                        df[selected_columns].plot(kind='bar', edgecolor='black')
+                    elif chart_type == "Đường":
+                        df[selected_columns].plot(kind='line')
+                    elif chart_type == "Tròn":
+                        if len(selected_columns) > 1:
+                            messagebox.showerror("Lỗi", "Biểu đồ tròn chỉ hỗ trợ một cột.")
+                            return
+                        df[selected_columns[0]].value_counts().plot(kind='pie', autopct='%1.1f%%', startangle=140)
+                    else:
+                        messagebox.showerror("Lỗi", "Loại biểu đồ không được hỗ trợ.")
+                        return
+
                     plt.title('Biểu Đồ So Sánh')
                     plt.xlabel('Index')
                     plt.ylabel('Giá Trị')
@@ -349,24 +380,35 @@ def choose_graphic():
                 except Exception as e:
                     messagebox.showerror("Lỗi", f"Không thể vẽ biểu đồ: {e}")
 
-            thread = threading.Thread(target=plot_thread)
+            # Tạo luồng mới để vẽ biểu đồ
+            thread = Thread(target=draw_chart)
             thread.start()
 
-        plot_btn = tk.Button(select_window, text="Vẽ Biểu Đồ", command=plot_selected, bg="#2196F3", fg="white", font=("Arial", 12, "bold"))
-        plot_btn.pack(pady=10)
-
+        # Nút Vẽ Biểu Đồ
+        tk.Button(select_window, 
+                  text="Vẽ Biểu Đồ",
+                  command=plot_selected,
+                  bg="#4CAF50", 
+                  fg="white",
+                  font=("Arial", 14, "bold"),
+                  padx=20,  # Tăng padding ngang
+                  pady=10,  # Tăng padding dọc
+                  relief="raised",  # Kiểu nút nổi
+                  height=5,
+                  width=15 
+        ).pack(pady=20)
+                     
     except Exception as e:
-        messagebox.showerror("Lỗi", f"Không thể vẽ biểu đồ: {e}")
+        messagebox.showerror("Lỗi", f"Không thể tạo giao diện biểu đồ: {e}")
+
+
 
 def sort_data(column, ascending=True):
-    """Hàm sắp xếp dữ liệu theo cột đã chọn với thứ tự tăng hoặc giảm."""
+    """Sắp xếp dữ liệu trong DataFrame và cập nhật trực tiếp Treeview."""
     global df, current_page
-    if df.empty:
-        messagebox.showwarning("Cảnh báo", "Chưa có dữ liệu để sắp xếp.")
-        return
 
-    if not column:
-        messagebox.showerror("Lỗi", "Vui lòng chọn một cột để sắp xếp.")
+    if df.empty:
+        messagebox.showwarning("Cảnh báo", "Không có dữ liệu để sắp xếp.")
         return
 
     if column not in df.columns:
@@ -374,23 +416,37 @@ def sort_data(column, ascending=True):
         return
 
     try:
+        # Chuẩn hóa dữ liệu cột (nếu cột là số)
+        if df[column].dtype != 'object':  # Nếu không phải chuỗi
+            df[column] = pd.to_numeric(df[column], errors='coerce')  # Chuyển đổi giá trị không hợp lệ thành NaN
+            df = df.dropna(subset=[column])  # Loại bỏ hàng có giá trị NaN
+
         # Sắp xếp dữ liệu
         df = df.sort_values(by=column, ascending=ascending).reset_index(drop=True)
 
-        # Đặt lại trang hiện tại về 1 sau khi sắp xếp
-        current_page = 1
+        # Xóa dữ liệu cũ trong Treeview
+        for item in tree.get_children():
+            tree.delete(item)
 
-        # Cập nhật Treeview
-        load_data_to_treeview()
+        # Hiển thị lại dữ liệu từ DataFrame đã sắp xếp
+        start_row = (current_page - 1) * ROWS_PER_PAGE
+        end_row = start_row + ROWS_PER_PAGE
+        page_data = df.iloc[start_row:end_row]
+
+        for _, row in page_data.iterrows():
+            tree.insert("", "end", values=list(row))
+
+        # Hiển thị thông báo
         order_text = "tăng dần" if ascending else "giảm dần"
         messagebox.showinfo("Thành công", f"Dữ liệu đã được sắp xếp theo cột '{column}' ({order_text}).")
-
     except Exception as e:
         messagebox.showerror("Lỗi", f"Không thể sắp xếp dữ liệu: {e}")
+
 
 def search_data(column_name):
     """Hàm hiển thị kết quả tìm kiếm trong cửa sổ mới."""
     global file_path, df
+
 
     def execute_search():
         value = search_entry.get()  # Lấy giá trị từ ô nhập
@@ -398,7 +454,7 @@ def search_data(column_name):
 
         # Chuyển đổi kiểu dữ liệu phù hợp với cột đang tìm kiếm
         try:
-            if column_name == "Year":
+            if column_name == "Year" or column_name == "Rank":
                 value = int(value)  # Chuyển thành int với cột là năm
         except ValueError:
             messagebox.showerror("Lỗi", "Dữ liệu nhập không phù hợp với kiểu của cột.")
@@ -432,7 +488,7 @@ def search_data(column_name):
 
         # Hiển thị dữ liệu tìm kiếm
         for index, row in result_df.iterrows():
-            result_tree.insert("", "end", iid=index, values=list(row))
+            result_tree.insert("", "end", iid=row["Rank"], values=list(row))
 
         # Nút đóng cửa sổ
         close_btn = tk.Button(result_window, text="Đóng", command=result_window.destroy, bg="#f44336", fg="white",
