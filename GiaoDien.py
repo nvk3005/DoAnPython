@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 import pandas as pd
 import matplotlib.pyplot as plt
-from Data_visualization import plot_sales_by_year, plot_sales_by_genre, plot_region_sales, plot_top_10_games
+from Data_visualization import plot_sales_by_year, plot_sales_by_genre, plot_region_sales, plot_top_10_games, plot_top_10_platform
 from threading import Thread
 import CRUD
 import Search
@@ -315,20 +315,29 @@ def delete_entry():
         import matplotlib.pyplot as plt
 
 
+import tkinter as tk
+from tkinter import messagebox
+
+
 def choose_graphic():
     """Hàm chọn loại biểu đồ để vẽ."""
     try:
+        # Tạo cửa sổ mới
         graphic_window = tk.Toplevel(root)
         graphic_window.title("Chọn Loại Biểu Đồ")
         graphic_window.geometry("400x300")
         graphic_window.configure(bg="#f0f0f0")
 
+        # Tiêu đề
         tk.Label(graphic_window, text="Chọn loại biểu đồ:", font=("Arial", 12, "bold"), bg="#f0f0f0").pack(pady=10)
-         # Kiểm tra nếu `df` có dữ liệu
+
+        # Kiểm tra nếu `df` có dữ liệu
         if df.empty:
             messagebox.showerror("Lỗi", "Không có dữ liệu để vẽ biểu đồ. Vui lòng mở file CSV trước.")
+            graphic_window.destroy()
             return
 
+        # Các hàm gọi vẽ biểu đồ
         def call_plot_sales_by_year():
             plot_sales_by_year(df)
 
@@ -341,14 +350,23 @@ def choose_graphic():
         def call_plot_top_10_games():
             plot_top_10_games(df)
 
-        tk.Button(graphic_window, text="Doanh số theo năm", command=call_plot_sales_by_year, bg="#4CAF50", fg="white").pack(pady=10)
-        tk.Button(graphic_window, text="Doanh số theo thể loại", command=call_plot_sales_by_genre, bg="#2196F3", fg="white").pack(pady=10)
-        tk.Button(graphic_window, text="Tỷ lệ doanh số theo khu vực", command=call_plot_region_sales, bg="#FF9800", fg="white").pack(pady=10)
-        tk.Button(graphic_window, text="Top 10 trò chơi bán chạy", command=call_plot_top_10_games, bg="#800080", fg="white").pack(pady=10)
+        def call_plot_top_10_platform():
+            plot_top_10_platform(df)
+
+        # Các nút chọn loại biểu đồ
+        tk.Button(graphic_window, text="Doanh số theo năm", command=call_plot_sales_by_year,
+                  bg="#4CAF50", fg="white", width=25).pack(pady=5)
+        tk.Button(graphic_window, text="Doanh số theo thể loại", command=call_plot_sales_by_genre,
+                  bg="#2196F3", fg="white", width=25).pack(pady=5)
+        tk.Button(graphic_window, text="Tỷ lệ doanh số theo khu vực", command=call_plot_region_sales,
+                  bg="#FF9800", fg="white", width=25).pack(pady=5)
+        tk.Button(graphic_window, text="Top 10 trò chơi bán chạy", command=call_plot_top_10_games,
+                  bg="#800080", fg="white", width=25).pack(pady=5)
+        tk.Button(graphic_window, text="Top 10 nền tảng có doanh số cao nhất", command=call_plot_top_10_platform,
+                  bg="#008080", fg="white", width=25).pack(pady=5)
+
     except Exception as e:
         messagebox.showerror("Lỗi", f"Không thể tạo giao diện biểu đồ: {e}")
-
-
 
 def sort_data(column, ascending=True):
     """Sắp xếp dữ liệu trong DataFrame và cập nhật trực tiếp Treeview."""
