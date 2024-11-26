@@ -363,7 +363,7 @@ def choose_graphic():
         tk.Button(graphic_window, text="Top 10 trò chơi bán chạy", command=call_plot_top_10_games,
                   bg="#800080", fg="white", width=25).pack(pady=5)
         tk.Button(graphic_window, text="Top 10 nền tảng có doanh số cao nhất", command=call_plot_top_10_platform,
-                  bg="#008080", fg="white", width=25).pack(pady=5)
+                  bg="#008080", fg="white", width=30).pack(pady=5)
 
     except Exception as e:
         messagebox.showerror("Lỗi", f"Không thể tạo giao diện biểu đồ: {e}")
