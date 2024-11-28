@@ -15,10 +15,6 @@ Cách Sử Dụng
 Để sử dụng dự án này, bạn cần làm theo các bước sau:
 
 Tải xuống và cài đặt Python (Phiên bản 3.x trở lên).
-Cài đặt các thư viện yêu cầu bằng lệnh:
-bash
-Copy code
-pip install -r requirements.txt
 Chạy các file Python theo mục đích sử dụng. Ví dụ:
 CRUD.py để thao tác với dữ liệu.
 Data_visualization.py để tạo các biểu đồ trực quan.
