@@ -1,12 +1,12 @@
 # Đồ Án Lập Trình Python: Quản Lý Dữ Liệu Video Game Sales
 Chào mừng các bạn đến với đồ án cuối kỳ môn Lập Trình Python của nhóm chúng tôi. Đồ án này được thực hiện trên tập dữ liệu cleanData.csv, lấy từ trang web VGChartz, với chủ đề: Quản Lý Dữ Liệu Video Game Sales.
 
-Mô Tả Dự Án
+## Mô Tả Dự Án
 Chúng tôi đã xây dựng một ứng dụng quản lý dữ liệu doanh thu của các trò chơi video. Ứng dụng cung cấp các chức năng cơ bản như tạo mới, đọc, cập nhật và xóa dữ liệu. Bên cạnh đó, chúng tôi cũng tích hợp các công cụ trực quan hóa dữ liệu và tìm kiếm thông tin nhanh chóng từ bộ dữ liệu lớn.
 
 Ứng dụng này sẽ giúp người dùng dễ dàng truy xuất, phân tích, và trực quan hóa các thông tin quan trọng từ dữ liệu doanh thu trò chơi video.
 
-Các Thành Phần Chính
+## Các Thành Phần Chính
 Repo của chúng tôi bao gồm các file sau:
 
 CRUD.py: Module thực hiện các chức năng Create, Read, Update, Delete (CRUD) trên tập dữ liệu.
@@ -32,7 +32,5 @@ GiaoDien.py: Để sử dụng giao diện người dùng (GUI) cho các thao t�
 4. Thực Hiện Các Thao Tác
 Sau khi đã cài đặt và chạy các file Python, bạn có thể thực hiện các thao tác cơ bản như thêm dữ liệu, cập nhật, tìm kiếm, và xem các biểu đồ trực quan từ dữ liệu của các trò chơi video.
 
-Kết Quả
-Chúng tôi hy vọng dự án này không chỉ giúp bạn hiểu rõ hơn về các thao tác cơ bản với dữ liệu trong Python mà còn cung cấp một cái nhìn tổng thể về việc xử lý và trực quan hóa dữ liệu từ các nguồn bên ngoài.
-
-Chúc các bạn học hỏi được nhiều điều bổ ích từ dự án này!
+## Kết Quả
+Chúng tôi hy vọng qua dự án này giúp bạn hiểu rõ hơn về các thao tác cơ bản với dữ liệu trong Python.
