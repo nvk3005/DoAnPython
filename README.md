@@ -7,10 +7,11 @@ Chúng tôi đã xây dựng một ứng dụng quản lý dữ liệu doanh thu
 Các Thành Phần Chính
 Repo của chúng tôi bao gồm các file sau:
 
-CRUD.py: Module thực hiện các chức năng Create, Read, Update, Delete (CRUD) trên tập dữ liệu.
-Data_visualization.py: Module dùng để minh họa và trực quan hóa dữ liệu dưới dạng đồ thị, biểu đồ giúp người dùng dễ dàng theo dõi và phân tích các thông tin.
-Search.py: Module hỗ trợ chức năng tìm kiếm giá trị trong tập dữ liệu, giúp người dùng nhanh chóng truy xuất thông tin cần thiết.
-GiaoDien.py: Module xây dựng giao diện GUI trực quan, giúp người dùng dễ dàng tương tác với các thao tác trên dữ liệu, như tìm kiếm, chỉnh sửa, hoặc hiển thị thông tin.
++CRUD.py: Module thực hiện các chức năng Create, Read, Update, Delete (CRUD) trên tập dữ liệu.
++Data_visualization.py: Module dùng để minh họa và trực quan hóa dữ liệu dưới dạng đồ thị, biểu đồ giúp người dùng dễ dàng theo dõi và phân tích các thông tin.
++Search.py: Module hỗ trợ chức năng tìm kiếm giá trị trong tập dữ liệu, giúp người dùng nhanh chóng truy xuất thông tin cần thiết.
++GiaoDien.py: Module xây dựng giao diện GUI trực quan, giúp người dùng dễ dàng tương tác với các thao tác trên dữ liệu, như tìm kiếm, chỉnh sửa, hoặc hiển thị thông tin.
+
 Cách Sử Dụng
 Để sử dụng dự án này, bạn cần làm theo các bước sau:
 
@@ -20,5 +21,7 @@ CRUD.py để thao tác với dữ liệu.
 Data_visualization.py để tạo các biểu đồ trực quan.
 Search.py để tìm kiếm các thông tin trong tập dữ liệu.
 GiaoDien.py để sử dụng giao diện GUI.
+
+
 Kết Quả
 Chúng tôi hy vọng dự án này không chỉ giúp bạn hiểu rõ hơn về các thao tác cơ bản với dữ liệu trong Python mà còn cung cấp một cái nhìn tổng thể về việc xử lý và trực quan hóa dữ liệu từ các nguồn bên ngoài.
