@@ -13,7 +13,7 @@ Repo của chúng tôi bao gồm các file sau:
 - Data_visualization.py: Module dùng để minh họa và trực quan hóa dữ liệu dưới dạng đồ thị, biểu đồ giúp người dùng dễ dàng theo dõi và phân tích các thông tin.
 - Search.py: Module hỗ trợ chức năng tìm kiếm giá trị trong tập dữ liệu, giúp người dùng nhanh chóng truy xuất thông tin cần thiết.
 - GiaoDien.py: Module xây dựng giao diện GUI trực quan, giúp người dùng dễ dàng tương tác với các thao tác trên dữ liệu, như tìm kiếm, chỉnh sửa, hoặc hiển thị thông tin.
-Cách Sử Dụng
+#Cách Sử Dụng
 Để sử dụng dự án này, bạn cần làm theo các bước sau:
 
 1. Cài Đặt Python
