@@ -1,4 +1,4 @@
-Đồ Án Lập Trình Python: Quản Lý Dữ Liệu Video Game Sales
+# Đồ Án Lập Trình Python: Quản Lý Dữ Liệu Video Game Sales
 Chào mừng các bạn đến với đồ án cuối kỳ môn Lập Trình Python của nhóm chúng tôi. Đồ án này được thực hiện trên tập dữ liệu cleanData.csv, lấy từ trang web VGChartz, với chủ đề: Quản Lý Dữ Liệu Video Game Sales.
 
 Mô Tả Dự Án
