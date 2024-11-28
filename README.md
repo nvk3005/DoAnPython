@@ -9,10 +9,10 @@ Chúng tôi đã xây dựng một ứng dụng quản lý dữ liệu doanh thu
 ## Các Thành Phần Chính
 Repo của chúng tôi bao gồm các file sau:
 
-CRUD.py: Module thực hiện các chức năng Create, Read, Update, Delete (CRUD) trên tập dữ liệu.
-Data_visualization.py: Module dùng để minh họa và trực quan hóa dữ liệu dưới dạng đồ thị, biểu đồ giúp người dùng dễ dàng theo dõi và phân tích các thông tin.
-Search.py: Module hỗ trợ chức năng tìm kiếm giá trị trong tập dữ liệu, giúp người dùng nhanh chóng truy xuất thông tin cần thiết.
-GiaoDien.py: Module xây dựng giao diện GUI trực quan, giúp người dùng dễ dàng tương tác với các thao tác trên dữ liệu, như tìm kiếm, chỉnh sửa, hoặc hiển thị thông tin.
+- **CRUD.py: Module thực hiện các chức năng Create, Read, Update, Delete (CRUD) trên tập dữ liệu.
+- **Data_visualization.py: Module dùng để minh họa và trực quan hóa dữ liệu dưới dạng đồ thị, biểu đồ giúp người dùng dễ dàng theo dõi và phân tích các thông tin.
+- **Search.py: Module hỗ trợ chức năng tìm kiếm giá trị trong tập dữ liệu, giúp người dùng nhanh chóng truy xuất thông tin cần thiết.
+- **GiaoDien.py: Module xây dựng giao diện GUI trực quan, giúp người dùng dễ dàng tương tác với các thao tác trên dữ liệu, như tìm kiếm, chỉnh sửa, hoặc hiển thị thông tin.
 Cách Sử Dụng
 Để sử dụng dự án này, bạn cần làm theo các bước sau:
 
@@ -24,10 +24,10 @@ Python Official Website.
 Sử dụng pip để cài đặt các thư viện yêu cầu từ file requirements.txt. Mở terminal và chạy lệnh sau:
 
 3. Chạy Các File Python
-CRUD.py: Để thao tác với dữ liệu (thêm, sửa, xóa, hoặc đọc thông tin).
-Data_visualization.py: Để tạo các biểu đồ trực quan và phân tích dữ liệu.
-Search.py: Để tìm kiếm các thông tin trong tập dữ liệu.
-GiaoDien.py: Để sử dụng giao diện người dùng (GUI) cho các thao tác trên dữ liệu.
+- **CRUD.py: Để thao tác với dữ liệu (thêm, sửa, xóa, hoặc đọc thông tin).
+- **Data_visualization.py: Để tạo các biểu đồ trực quan và phân tích dữ liệu.
+- **Search.py: Để tìm kiếm các thông tin trong tập dữ liệu.
+- **GiaoDien.py: Để sử dụng giao diện người dùng (GUI) cho các thao tác trên dữ liệu.
 
 4. Thực Hiện Các Thao Tác
 Sau khi đã cài đặt và chạy các file Python, bạn có thể thực hiện các thao tác cơ bản như thêm dữ liệu, cập nhật, tìm kiếm, và xem các biểu đồ trực quan từ dữ liệu của các trò chơi video.
