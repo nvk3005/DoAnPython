@@ -2,8 +2,8 @@
 Chào mừng các bạn đến với đồ án cuối kỳ môn Lập Trình Python của nhóm chúng tôi. Đồ án này được thực hiện trên tập dữ liệu cleanData.csv, lấy từ trang web VGChartz, với chủ đề: Quản Lý Dữ Liệu Video Game Sales.
 
 ## Thông tin nhóm
--Nguyễn Văn Kế - Nhóm trưởng
--Trần Triều Dương - 23110234
+- Nguyễn Văn Kế - Nhóm trưởng
+- Trần Triều Dương - 23110234
 - Nguyễn Anh Khoa - 23133037
 - Nguyễn Thị Việt Hoa - 23133023
 - Lê Ngô thanh Hoa - 23133022
