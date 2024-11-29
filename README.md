@@ -1,6 +1,13 @@
 # Đồ Án Lập Trình Python: Quản Lý Dữ Liệu Video Game Sales
 Chào mừng các bạn đến với đồ án cuối kỳ môn Lập Trình Python của nhóm chúng tôi. Đồ án này được thực hiện trên tập dữ liệu cleanData.csv, lấy từ trang web VGChartz, với chủ đề: Quản Lý Dữ Liệu Video Game Sales.
 
+## Thông tin nhóm
+-Nguyễn Văn Kế-Nhóm trưởng
+-Trần Triều Dương - 23110234
+- Nguyễn Anh Khoa - 23133037
+- Nguyễn Thị Việt Hoa - 23133023
+- Lê Ngô thanh Hoa - 23133022
+
 ## Mô Tả Dự Án
 Chúng tôi đã xây dựng một ứng dụng quản lý dữ liệu doanh thu của các trò chơi video. Ứng dụng cung cấp các chức năng cơ bản như tạo mới, đọc, cập nhật và xóa dữ liệu. Bên cạnh đó, chúng tôi cũng tích hợp các công cụ trực quan hóa dữ liệu và tìm kiếm thông tin nhanh chóng từ bộ dữ liệu lớn.
 
