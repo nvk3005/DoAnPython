@@ -101,7 +101,7 @@ class CSVManager:
         print(f"Cập nhật ID {rank_id} thành công")
         print(f"Hàng vừa cập nhật ở rank ID {new_rank_id}")
 
-    def delete(self, rank_id):
+    def delete(self, listRankID):
         try:
             df = pd.read_csv(self.file_path)
         except FileNotFoundError:
@@ -109,18 +109,24 @@ class CSVManager:
             return
 
         try:
-            rank_id = int(rank_id)
+            listRankID = [int(rank_id) for rank_id in listRankID]
         except ValueError:
             print("Rank ID nhập vào không phải dạng số")
             return
 
-        if rank_id not in df["Rank"].values:
-            print(f"Không tìm thấy rank ID {rank_id}")
+        notFoundID = []
+        for rank_id in listRankID:
+            if rank_id not in df["Rank"].values:
+                notFoundID.append(rank_id)
+        if notFoundID:
+            print(f"Không tìm thấy các rank ID sau: {notFoundID}")
             return
 
-        df = df[df["Rank"] != rank_id]
+        for rank_id in listRankID:
+            df = df[df["Rank"] != rank_id]
+
         df = df.sort_values(by="Global_Sales", ascending=False).reset_index(drop=True)
         df["Rank"] = df.index + 1
 
         df.to_csv(self.file_path, index=False)
-        print(f"Xoá thành công ID {rank_id}")
+        print(f"Xóa thành công các ID {listRankID}")
