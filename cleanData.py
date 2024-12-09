@@ -1,10 +1,5 @@
 import pandas as pd
 
-def ChangeType(dataFile, value, type, outputPath = "cleanData.csv"):
-    data = pd.read_csv(dataFile, header=0, index_col= 0)
-    data[value] = data[value].astype(type)
-    data.to_csv(outputPath)
-
 def cleanData(dataFile, value, outputPath = "cleanData.csv"):
     data = pd.read_csv(dataFile, header=0, index_col= 0)
 
@@ -16,6 +11,11 @@ def cleanData(dataFile, value, outputPath = "cleanData.csv"):
 
     cleanData.to_csv(outputPath)
 
+def ChangeType(dataFile, value, type, outputPath = "cleanData.csv"):
+    data = pd.read_csv(dataFile, header=0, index_col= 0)
+    data[value] = data[value].astype(type)
+    data.to_csv(outputPath)
 
 cleanData("data.csv", "Global_Sales")
+cleanData("cleanData.csv", "Year", "cleanData1.csv")
 ChangeType("cleanData.csv", "Year", int)
