@@ -33,7 +33,7 @@ headers = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
 }
 
-# Khởi tạo các cột (bỏ cmt nếu muốn chạy lại từ đầu)
+# # Khởi tạo các cột (bỏ cmt nếu muốn chạy lại từ đầu)
 # columns = ['Rank', 'Name', 'Platform', 'Year', 'Publisher', 'NA_Sales', 'PAL_Sales', 'JP_Sales', 'Other_Sales', 'Global_Sales']
 # df = pd.DataFrame(columns=columns)
 # df.to_csv("data.csv", mode='w', index=False, encoding='utf-8')
@@ -60,7 +60,7 @@ for page in range(page_start , pages + 1):
                     # Lấy thông tin mỗi game
                     data = tag.parent.parent.find_all("td")
                     rank.append(data[0].string)
-                    platform.append(data[3].find('img').attrs['alt'] if data[3] and data[3].find('img') else "N/A")
+                    platform.append(data[3].find('img').attrs['alt'] if data[3] and data[3].find('img') else "N/A") #arrrs: lấy giá trị của thuộc tính
                     publisher.append(data[4].string if not data[4].string.startswith("N/A") else "N/A")
                     sales_na.append(data[6].string[:-1] if not data[6].string.startswith("N/A") else "0")
                     sales_pal.append(data[7].string[:-1] if not data[7].string.startswith("N/A") else "0")
