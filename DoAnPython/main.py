@@ -54,7 +54,7 @@ def load_data_to_treeview(show_message=False):
             
         style = ttk.Style(root)
         style.theme_use("default")
-        style.configure("Treeview.Heading", font=("Arial", 10, "bold"), background="#8fbc8f", relief="flat")
+        style.configure("Treeview.Heading", font=("Arial", 10, "bold"), background="#8fbc8f", relief="3D")
 
         # Đặt tên cột và hiển thị dữ liệu 
         tree["column"] = list(df.columns)
@@ -69,7 +69,7 @@ def load_data_to_treeview(show_message=False):
         page_data = df.iloc[start_row: end_row]
 
          # Hiển thị dữ liệu lên Treeview
-        for _, row in page_data.iterrows():
+        for id, row in page_data.iterrows():
             tree.insert("", "end", iid=row["Rank"], values=list(row))
 
         # Cập nhật trạng thái nút chuyển trang
@@ -144,6 +144,7 @@ def input_page():
             messagebox.showerror("Lỗi", "Trang bạn nhập không tồn tại")
     except:
         messagebox.showwarning("Cảnh báo", "Chưa chọn trang")
+        
 file_path = None
 def open_file():
     '''Hàm mở File csv được người dùng lựa chọn'''
@@ -226,7 +227,7 @@ def create_entry():
     global manager
     try:
         # Lấy dữ liệu từ các ô nhập
-        new_data = {col: entries[col].get() for col in entries}
+        new_data = {col: entries[col].get() for col in entries.keys()}
 
         # Kiểm tra nếu có trường nào để trống
         missing_fields = [field for field, value in new_data.items() if not value]
@@ -299,7 +300,7 @@ def update_entry():
         
     try:
          # Lấy dòng được chọn từ Treeview
-        selected_item = tree.selection()[0]
+        selected_item = tree.selection()
         row_data = tree.item(selected_item, "values")  # Lấy dữ liệu của hàng
         
         update_window = tk.Toplevel(root)
@@ -367,7 +368,7 @@ def delete_entry():
     '''Hàm xử lý sự kiện cho chức năng xóa hàng'''
     global manager
     try:
-        selected_item = tree.selection()[0] # Lấy ID của phần tử đầu tiên được chọn (ID này đã được đặt theo rank)
+        selected_item = tree.selection()
         result = messagebox.askyesno("Xác nhận xóa", "Bạn có chắc chắn muốn xóa không?")
         if result:
             manager.delete(selected_item)
@@ -379,7 +380,6 @@ def delete_entry():
         messagebox.showwarning("Cảnh báo", "Chưa chọn dòng để xóa.")
     except Exception as e:
         messagebox.showerror("Lỗi", f"Không thể xóa dữ liệu: {e}")
-        import matplotlib.pyplot as plt
 
 def choose_graphic():
     """Hàm chọn loại biểu đồ để vẽ."""
@@ -490,7 +490,7 @@ def search_data():
             # Chuyển đổi kiểu dữ liệu phù hợp với cột đang tìm kiếm
             try:
                 if column_name == "Year" or column_name == "Rank":
-                    value_search = int(value_search)  # Chuyển thành int với cột là năm
+                    value_search = int(value_search)
             except ValueError:
                 messagebox.showerror("Lỗi", "Dữ liệu nhập không phù hợp với kiểu dữ liệu của cột.")
                 return
